@@ -1,0 +1,19 @@
+{
+  "ack": 0,
+  "type": "NORMAL",
+  "msgpid": 0,
+  "msgID": "",
+  "timestamp": 0,
+  "serviceID": "",
+  "respondChannel": "",
+  "request" : {
+    "service" : "",
+    "function" : ""
+  },
+  "trackingChain" : [],
+  "data" : {},
+  "error": {
+    "errorID": 0,
+    "message": ""
+  }
+}

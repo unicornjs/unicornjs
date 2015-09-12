@@ -1,0 +1,39 @@
+{
+  "name": "unicornjs",
+  "version": "0.0.3",
+  "description": "The unicorn plugin microservice platform",
+  "main": "unicorn.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lars van der Schans and Daniela Ruiz",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "cluster": "^0.7.7",
+    "crypto": "0.0.3",
+    "es6-promise": "^3.0.2",
+    "extend-object": "^1.0.0",
+    "hiredis": "^0.4.1",
+    "joi": "^6.6.1",
+    "redis": "^0.12.1",
+    "xtend": "^4.0.0"
+  },
+  "directories": {
+    "example": "examples"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unicornjs/unicornjs.git"
+  },
+  "keywords": [
+    "unicorn",
+    "unicornjs",
+    "microservice",
+    "distributed",
+    "microservices"
+  ],
+  "bugs": {
+    "url": "https://github.com/unicornjs/unicornjs/issues"
+  },
+  "homepage": "https://github.com/unicornjs/unicornjs#readme"
+}
