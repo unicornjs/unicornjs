@@ -10,7 +10,7 @@
 var configFile = process.argv[2],
     serviceName = process.argv[3],
     config = require(configFile),
-    unicorn = require('unicorn').service(config),
+    unicorn = require('unicornjs').service(config),
     uThread = require('./lib/uThread.js')(unicorn),
     service = {};
 
