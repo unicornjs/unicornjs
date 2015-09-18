@@ -96,6 +96,12 @@ module.exports = function(unicornInject) {
         uServicesManager(); //Initialize and populate uServices variable
         masterLogic();
 
+        //TODO this should not be here - ping
+        setTimeout(function () {
+            console.log('about ping');
+            unicorn.uAlive.ping();
+        }, 3000);
+
     });
 };
 
