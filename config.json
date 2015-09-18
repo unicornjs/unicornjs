@@ -1,0 +1,13 @@
+{
+  "redis":[
+    {"server":"127.0.0.1","port":6379}
+  ],
+  "cluster":{
+    "threads":2,
+    "maxThreads":8
+  },
+  "server":{
+    "name":"srv01",
+    "address":"0.0.0.0"
+  }
+}

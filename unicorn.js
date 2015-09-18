@@ -21,7 +21,8 @@ var unicorn = {
     promises:{},
     uMessage:{},
     uTalk:{},
-    uBroker:{}
+    uBroker:{},
+    uAlive: {}
 };
 
 // Add 3rd party libs first
@@ -62,6 +63,7 @@ exports.system = function(config){
     // Initialise the config
     unicorn.config.init(config).then(function (done) { // resolve
         // When the init is done
+        unicorn.uAlive = require('./lib/uAlive.js')(unicorn);
         console.log('config promise returned!');
         readyFunctions.map(function(func){
             func();
@@ -82,37 +84,29 @@ exports.system = function(config){
         },
         start:function() {
             // Start the unicorn
+
             unicorn.uSpawn = require('./lib/uSpawn.js')(unicorn);
 
+
             console.log('Spawning broker now');
+
+
            unicorn.uSpawn.broker().then(function(broker){
                unicorn.services.push(broker);
                console.log('First broker there, lets spawn the math service');
-               unicorn.uSpawn.broker();
+
                unicorn.uSpawn.broker();
 
                unicorn.uSpawn.math();
-               unicorn.uSpawn.math();
-
 
            });
 
+            //TODO this should not be here - ping
+            setTimeout(function () {
+                console.log('about ping');
+                unicorn.uAlive.ping();
+            }, 3000);
 
-            // Spawn the brokers
-            // Spawn the services in paused state
-            // Broadcast start signal
-            unicorn.config.get('redis', function(config){
-                console.log(config);
-            });
-
-            var config = unicorn.config.get();
-
-            /* Small test to see config @ work
-
-            config.daniela = "lolz";
-            config = unicorn.config.set(config);
-            console.log(config);
-             */
         }
     };
 
@@ -228,7 +222,8 @@ exports.service = function(config){
         promise: unicorn.promise,
         uMessage: unicorn.uMessage,
         config: unicorn.config,
-        uTalk: unicorn.uTalk
+        uTalk: unicorn.uTalk,
+        uAlive: unicorn.uAlive
     };
 
     return service;
