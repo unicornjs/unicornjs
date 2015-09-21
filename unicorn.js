@@ -87,23 +87,32 @@ exports.system = function(config){
 
             unicorn.uSpawn = require('./lib/uSpawn.js')(unicorn);
 
-
             console.log('Spawning broker now');
 
+            // Always spawn a broker first. The unicorn can't run with 0 brokers
+           unicorn.uSpawn.spawnService('uBroker', 'coreService', true).then(function(mainBroker){
+               unicorn.services.push(mainBroker);
 
-           unicorn.uSpawn.broker().then(function(broker){
-               unicorn.services.push(broker);
                console.log('First broker there, lets spawn the math service');
+               for(var i=0; i < config.brokers.amount-1; i++){
+                   unicorn.uSpawn.spawnService('uBroker', 'coreService', true).then(function(broker) {
+                       unicorn.services.push(broker);
+                   });
+               }
 
-               unicorn.uSpawn.broker();
-
-               unicorn.uSpawn.math();
+               config.services.map(function(service){
+                   for(var i=0; i < service.amount; i++) {
+                       unicorn.uSpawn.spawnService(service.serviceName, service.type, config.initWait).then(function (service) {
+                           unicorn.services.push(service);
+                       });
+                   };
+               });
 
            });
 
             //TODO this should not be here - ping
             setTimeout(function () {
-                console.log('about ping');
+                console.log('Starting unicorn ping!');
                 unicorn.uAlive.ping();
             }, 3000);
 

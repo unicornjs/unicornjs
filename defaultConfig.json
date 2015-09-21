@@ -1,0 +1,24 @@
+{
+  "redis":[
+    {"server":"127.0.0.1","port":6379}
+  ],
+  "cluster":{
+    "threads":4,
+    "maxThreads":8
+  },
+  "server":{
+    "name":"srv01",
+    "address":"0.0.0.0"
+  },
+  "brokers":{
+    "amount":3
+  },
+  "services":[
+    {
+      "serviceName":"uMath",
+      "type":"coreService",
+      "initWait":false,
+      "amount":2
+    }
+  ]
+}
