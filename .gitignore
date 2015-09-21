@@ -16,6 +16,9 @@ coverage
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
+# .idea directory used by tools like phpstorm
+.idea
+
 # node-waf configuration
 .lock-wscript
 
@@ -25,3 +28,7 @@ build/Release
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
+index.js
+uTest.js
+uConky.js
+config.json

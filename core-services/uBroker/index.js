@@ -12,6 +12,7 @@ var unicorn = {},
     config = {},
     redis = {},
     msgModule = {},
+    uAlive = {},
     extend = require('extend-object'),
     client = {};
 
@@ -22,11 +23,25 @@ var uBrokers = {"brokers" : []},
 
 function masterLogic() {
     /* listener for update on this variable */
-    uServicesManager(); //Initialize and populate uServices variable
-    //pingServices (); //Start ping all the services and to have a clean uServices variables
     /* Master Logic */
     var listenClient = redis.createClient(config.redis[0].port, config.redis[0].server);
     var client2 = redis.createClient(config.redis[0].port, config.redis[0].server);
+    //var watcher = redis.createClient(config.redis[0].port, config.redis[0].server);
+    //
+    //
+    //watcher.config("SET","notify-keyspace-events", "KEA");
+    //
+    //watcher.on('message', function(channel, action) {
+    //
+    //    if (action === 'rpush') {
+    //
+    //        console.log('RPUSH');
+    //        messageHandler();
+    //    }
+    //});
+    //watcher.subscribe( "__keyspace@0__:uBrokerMessages", function (err) {
+    //    next();
+    //});
 
 
     console.log('Broker is up!');
@@ -47,21 +62,10 @@ function masterLogic() {
             //Asking for a channel
 
             if (msg.type == 'SERVICE') {
-                if (msg.ack == 1 && msg.request.function == 'pong') {
-                    // keep the service alive
-                    for (var k in uServices) {
-                        for (var j = 0; j < uServices[k].length; j++) {
-                            if (uServices[k][j].channel == msg.request.service) {
-                                uServices[k][j].timestamp = (new Date()).getTime();
-                                client.set('uServices', JSON.stringify(uServices));
-                                // Publish that it did an update
-                                client.publish('uServicesChannel', 'UPDATE');
-                            }
-                        }
-                    }
-                }
+                //I have a pong msg for the moment, this should be a switch case and call the respective function
+                uAlive.pong(msg);
             } else {
-                //lala
+                //Normal message
                 messageHandler(client2);
             }
         } catch (e) {
@@ -70,7 +74,6 @@ function masterLogic() {
     });
     listenClient.subscribe('uBroker');
 
-
 }
 
 module.exports = function(unicornInject) {
@@ -78,6 +81,8 @@ module.exports = function(unicornInject) {
     config = unicorn.config.get();
     redis = unicorn.redis;
     msgModule = unicorn.uMessage;
+    uAlive = unicorn.uAlive;
+
     client = redis.createClient(config.redis[0].port, config.redis[0].server);
 
     unicorn.on('active', function(){
@@ -87,11 +92,9 @@ module.exports = function(unicornInject) {
     unicorn.on('masterReady', function(){
         console.log('Broker master ready now');
         client = redis.createClient(config.redis[0].port, config.redis[0].server);
-        masterLogic();
 
-        setTimeout(function () {
-            pingServices (); //Start ping all the services and to have a clean uServices variables
-        }, 2000)
+        uServicesManager(); //Initialize and populate uServices variable
+        masterLogic();
 
     });
 };
@@ -264,57 +267,13 @@ function setAndPublish(variableName, object, channel, option){
     client.publish(channel, option);
 }
 
-/**
- * Ping services in uServices
- */
-function pingServices () {
+function messageHandler (client2) {
 
-    setInterval(function () {
-        for(var k in uServices) {
-            for (var j = 0; j < uServices[k].length; j++) {
-                var msg = msgModule.create('broker', process.pid);
-                msg.respondChannel = 'uBroker';
-                msg.request.service = uServices[k][j].channel;
-                msg.request.function = 'ping';
-                msg.type = 'SERVICE';
-                client.publish(uServices[k][j].channel, JSON.stringify(msg));
-                //console.log('ping');
-            }
-        }
-    }, 2000);
-
-    //TODO if timestamp is too old the service is dead
-    setInterval(function () {
-        var change = false;
-        for (var k in uServices) {
-            var servicesAlive = [];
-            for (var j = 0; j < uServices[k].length; j++) {
-                var now = (new Date()).getTime();
-                //console.log(( now - uServices[k][j].timestamp ));
-                if (( now - uServices[k][j].timestamp ) < 3000) {
-                    servicesAlive.push(uServices[k][j]);
-                    change = true;
-                }
-            }
-            uServices[k] = servicesAlive;
-        }
-        if (change == true) {
-            //// Publish that it did an update
-            client.set('uServices', JSON.stringify(uServices));
-            client.publish('uServicesChannel', 'UPDATE');
-            //console.log('uServices UPDATE ', uServices);
-        }
-    }, 3000);
-}
-
-function messageHandler (client2){
+    //var client2 = redis.createClient(config.redis[0].port, config.redis[0].server);
 
     client2.brpop('uBrokerMessages', 0, function (err, message) {
         try {
             var msg = JSON.parse(message[1]);
-            console.log('uBroker_ has message %s', msg.serviceID);
-
-            //console.log(msg);
 
             if (msg.respondChannel === '') {
                 //assign channel
@@ -345,7 +304,6 @@ function messageHandler (client2){
                         client.publish(msg.respondChannel, JSON.stringify(msg));
                         //client2.quit();
                     } else {
-                        console.log('service responding %s', serviceAssgined.channel);
                         msg.trackingChain.push({
                             "service": serviceAssgined.channel,
                             "timestamp": (new Date()).getTime()
