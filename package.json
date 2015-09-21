@@ -1,6 +1,6 @@
 {
   "name": "unicornjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "The unicorn plugin microservice platform",
   "main": "unicorn.js",
   "scripts": {
