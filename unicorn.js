@@ -46,8 +46,8 @@ var readyFunctions = [],
     exitFunctions = [];
 
 /*
-The unicorn system exposes the whole system, with all functionality, it also has the option to start, stop and pause unicorn
-You will need this future at least once per server you are running
+ * The unicorn system exposes the whole system, with all functionality, it also has the option to start, stop and pause unicorn
+ * You will need this future at least once per server you are running
  */
 exports.system = function(config){
     // TODO: test if we have a redis server available else throw error and quit
